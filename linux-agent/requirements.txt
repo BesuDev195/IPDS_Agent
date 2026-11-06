@@ -1,0 +1,11 @@
+# Core dependencies
+pydantic>=2.6.0
+httpx>=0.27.0
+pyyaml>=6.0.1
+psutil>=5.9.0
+pycryptodome>=3.18.0
+pycryptodomex>=3.18.0
+typing_extensions>=4.8.0
+
+# Testing dependencies
+pytest>=7.4.0

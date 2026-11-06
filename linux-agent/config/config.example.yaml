@@ -1,0 +1,77 @@
+# ==============================================================================
+# Linux Security Agent for AI-Based IDS/IPS - Configuration File
+# ==============================================================================
+
+agent:
+  id: "server-001"
+  name: "organization-web-server"
+
+backend:
+  # Central FastAPI backend URL
+  url: "https://your-platform.com/api/v1"
+  # API Key for agent authentication. Environment variable substitution supported.
+  api_key: "${AGENT_API_KEY}"
+  timeout_seconds: 10.0
+  max_retries: 3
+  backoff_factor: 1.5
+  verify_ssl: true
+  endpoints:
+    telemetry: "/api/v1/agent/telemetry"
+    decisions: "/api/v1/agent/decisions"
+    actions_report: "/api/v1/agent/actions/report"
+    heartbeat: "/api/v1/agent/heartbeat"
+
+monitoring:
+  ufw_logs: true
+  network_monitoring: true
+  # Telemetry collection interval in seconds
+  interval: 10
+  # Common log locations to check for UFW firewall logs
+  ufw_log_paths:
+    - "/var/log/ufw.log"
+    - "/var/log/syslog"
+    - "/var/log/messages"
+    - "/var/log/kern.log"
+  use_journalctl: true
+  # Specific interfaces to monitor. Leave empty to automatically monitor active non-loopback interfaces.
+  interfaces: []
+
+protection:
+  # Modes:
+  #   monitor: Detect and report only.
+  #   manual: Send recommended actions for approval.
+  #   automatic: Apply validated and authorized firewall decisions.
+  mode: "monitor"
+  # Automatic blocking is NEVER enabled by default. Must be explicitly set to true if mode is automatic.
+  automatic_blocking: false
+  # Default block duration in seconds (e.g. 600 = 10 minutes)
+  block_duration: 600
+  # Maximum allowable block duration (safety guardrail)
+  max_block_duration: 86400
+  # Minimum confidence threshold (0.0 to 1.0) required to apply a mitigation
+  min_confidence: 0.85
+  # Trusted IP addresses and CIDR subnets that will NEVER be blocked under any circumstances
+  trusted_ips:
+    - "127.0.0.1"
+    - "::1"
+    - "10.0.0.0/8"
+    - "192.168.0.0/16"
+  # Management ports to preserve to prevent locking out administrators
+  management_ports:
+    - 22
+  # Prevent blocking private IP space unless explicitly enabled
+  allow_private_ip_blocking: false
+
+storage:
+  # SQLite database for local persistence, queueing, and audit logging
+  database_path: "/var/lib/ai-ids-agent/agent.db"
+  max_pending_telemetry: 10000
+  max_audit_records: 50000
+
+logging:
+  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+  log_file: "/var/log/ai-ids-agent/agent.log"
+  json_format: false
+  console_output: true
+
